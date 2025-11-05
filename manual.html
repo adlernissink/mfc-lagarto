@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRMFC Lagarto - Manual (Restrito)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif']
+                    },
+                    colors: {
+                        'blue-950': '#1C3D5A',
+                        'blue-800': '#2D6FAD',
+                        'gray-100': '#F4F7F6',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+
+<body class="font-sans antialiased text-gray-800">
+
+    <!-- 
+      Componente de Navegação (Menu)
+    -->
+  
+    <nav class="bg-white shadow-md sticky top-0 z-50" x-data="{ open: false }">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="index.html" class="text-xl font-bold text-blue-950">PRMFC Lagarto</a>
+                </div>
+                
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                    <a href="index.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Início</a>
+                    <a href="sobre.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Sobre</a>
+                    <a href="programa.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">O Programa</a>
+                    <!-- Link Ativo -->
+                    <a href="manual.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-blue-800 text-sm font-medium text-gray-900">Manual (Restrito)</a>
+                    <a href="contato.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Contato</a>
+                </div>
+
+                <!-- Botão do Menu "Burger" (Mobile) -->
+                <div class="-mr-2 flex items-center sm:hidden">
+                    <button @click="open = !open" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-800" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Abrir menu</span>
+                        <svg x-show="!open" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                        <svg x-show="open" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true" x-cloak>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Aberto (Mobile) -->
+        <div class="sm:hidden" id="mobile-menu" x-show="open" x-cloak @click.away="open = false">
+            <div class="pt-2 pb-3 space-y-1">
+                <a href="index.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Início</a>
+                <a href="sobre.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Sobre</a>
+                <a href="programa.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">O Programa</a>
+                <a href="manual.html" class="block pl-3 pr-4 py-2 border-l-4 border-blue-800 bg-blue-50 text-base font-medium text-blue-800">Manual (Restrito)</a>
+                <a href="contato.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Contato</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo da Página -->
+    <main>
+        <!-- 
+          O "PORTÃO DE SENHA"
+          O `div#login-gate` é mostrado primeiro.
+          O `div#conteudo-manual` está escondido (`hidden`).
+        -->
+        <div id="login-gate" class="flex items-center justify-center min-h-[60vh] bg-gray-100">
+            <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-lg text-center">
+                <h2 class="text-2xl font-bold text-blue-950">Acesso Restrito</h2>
+                <p class="mt-2 text-gray-600">Esta seção é reservada para residentes e preceptores.</p>
+                <div class="mt-6">
+                    <label for="senha" class="block text-sm font-medium text-gray-700 text-left">Senha de Acesso</label>
+                    <input type="password" id="senha" name="senha" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800 sm:text-sm">
+                </div>
+                <div class="mt-6">
+                    <button onclick="checkPassword()" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-800 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-800">
+                        Entrar
+                    </button>
+                </div>
+                <p id="error-message" class="mt-4 text-sm text-red-600" style="display: none;">
+                    Senha incorreta.
+                </p>
+            </div>
+        </div>
+
+        <!-- 
+          O CONTEÚDO REAL DO MANUAL
+          Este `div` está escondido e só aparece se a senha estiver correta.
+        -->
+        <div id="conteudo-manual" class="py-20 bg-gray-100" style="display: none;">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold tracking-tight text-blue-950 sm:text-4xl">Manual do Residente: Atividades e Avaliação</h2>
+                    <p class="mt-4 text-lg text-gray-600">Informações internas do programa.</p>
+                </div>
+
+                <div class="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Atividades Teóricas -->
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold text-blue-950 mb-6">Atividades Teóricas e Complementares</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Encontros Quinzenais</h4>
+                                <p class="text-sm text-gray-600">Atividade virtual síncrona para discussão de temas e casos. Condução rotativa.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Webinar SBMFC</h4>
+                                <p class="text-sm text-gray-600">Participação obrigatória no webinar nacional (quartas à noite).</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Liga Acadêmica (LAMEF)</h4>
+                                <p class="text-sm text-gray-600">Incentivo à participação, ministrando aulas e orientando estudantes.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Treinamentos de Habilidades</h4>
+                                <p class="text-sm text-gray-600">Workshops práticos (DIU, infiltrações, biópsias, etc.).</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Participação em Congressos</h4>
+                                <p class="text-sm text-gray-600">Estímulo à produção científica (CBMFC, ABRASCO).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Avaliação -->
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold text-blue-950 mb-6">Avaliação: O Portfólio Mensal</h3>
+                        <p class="text-gray-700">
+                            Sua avaliação é formativa e processual. O Portfólio Mensal é a principal ferramenta para isso e é **obrigatório**.
+                        </p>
+                        <p class="mt-4 text-gray-700">
+                            Ele deve conter uma reflexão crítica sobre suas atividades, incluindo:
+                        </p>
+                        <ul class="mt-4 list-disc list-inside space-y-2 text-gray-700">
+                            <li>Experiências marcantes do mês (eSF e estágios);</li>
+                            <li>Discussão de casos clínicos interessantes;</li>
+                            <li>Reflexões sobre temas de webinars e encontros;</li>
+                            <li>Dificuldades e facilidades encontradas.</li>
+                        </ul>
+                        <p class="mt-4 font-semibold text-gray-800">
+                            O portfólio não é um relatório de production; é a sua principal ferramenta de autoavaliação e aprendizado reflexivo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-blue-950">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <p class="text-center text-sm text-blue-200">
+                &copy; 2025 Programa de Residência em Medicina de Família e Comunidade - Lagarto/SE.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Script do Alpine.js para o menu mobile -->
+    <script src="//unpkg.com/alpinejs" defer></script>
+    
+    <!-- Script da Senha -->
+    <script>
+        function checkPassword() {
+
+            const correctPassword = "mfc_lagarto";
+            
+            let passwordInput = document.getElementById('senha').value;
+            let loginGate = document.getElementById('login-gate');
+            let content = document.getElementById('conteudo-manual');
+            let errorMessage = document.getElementById('error-message');
+
+            if (passwordInput === correctPassword) {
+                // Senha correta: esconde o login, mostra o conteúdo
+                loginGate.style.display = 'none';
+                content.style.display = 'block';
+            } else {
+                // Senha errada: mostra mensagem de erro
+                errorMessage.style.display = 'block';
+            }
+        }
+
+        // Permite apertar "Enter" no campo de senha
+        document.getElementById('senha').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                checkPassword();
+            }
+        });
+    </script>
+</body>
+
+</html>
