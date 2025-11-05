@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRMFC Lagarto - O Programa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif']
+                    },
+                    colors: {
+                        'blue-950': '#1C3D5A',
+                        'blue-800': '#2D6FAD',
+                        'gray-100': '#F4F7F6',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+
+<body class="font-sans antialiased text-gray-800">
+
+    <!-- 
+      Componente de Navegação (Menu)
+      Note que a classe "ativa" está em "O Programa".
+    -->
+    <nav class="bg-white shadow-md sticky top-0 z-50" x-data="{ open: false }">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="index.html" class="text-xl font-bold text-blue-950">PRMFC Lagarto</a>
+                </div>
+                
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                    <a href="index.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Início</a>
+                    <a href="sobre.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Sobre</a>
+                    <!-- Link Ativo -->
+                    <a href="programa.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-blue-800 text-sm font-medium text-gray-900">O Programa</a>
+                    <a href="manual.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Manual (Restrito)</a>
+                    <a href="contato.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Contato</a>
+                </div>
+
+                <!-- Botão do Menu "Burger" (Mobile) -->
+                <div class="-mr-2 flex items-center sm:hidden">
+                    <button @click="open = !open" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-800" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Abrir menu</span>
+                        <svg x-show="!open" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                        <svg x-show="open" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true" x-cloak>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Aberto (Mobile) -->
+        <div class="sm:hidden" id="mobile-menu" x-show="open" x-cloak @click.away="open = false">
+            <div class="pt-2 pb-3 space-y-1">
+                <a href="index.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Início</a>
+                <a href="sobre.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Sobre</a>
+                <a href="programa.html" class="block pl-3 pr-4 py-2 border-l-4 border-blue-800 bg-blue-50 text-base font-medium text-blue-800">O Programa</a>
+                <a href="manual.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Manual (Restrito)</a>
+                <a href="contato.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Contato</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo da Página -->
+    <main>
+        <!-- Seção 3: O Programa (Filosofia e Estrutura) -->
+        <section id="programa" class="py-20 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold tracking-tight text-blue-950 sm:text-4xl">Filosofia e Estrutura</h2>
+                </div>
+
+                <div class="mt-16 space-y-12">
+                    <!-- Filosofia -->
+                    <div class="bg-gray-100 p-8 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-semibold text-blue-950">O Residente como Sujeito Ativo</h3>
+                        <p class="mt-4 text-gray-700">
+                            Nosso programa é estruturado com base em **Metodologias Ativas de Ensino-Aprendizagem**.
+                            A qualidade da sua residência depende diretamente do seu protagonismo. Esperamos que
+                            você seja curioso, crítico, organizado e que traga suas dúvidas e casos para as discussões.
+                            A residência é tão boa quanto o residente a faz ser.
+                        </p>
+                    </div>
+
+                    <!-- Estrutura -->
+                    <div class="bg-gray-100 p-8 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-semibold text-blue-950">Atuação na Equipe de Saúde da Família (eSF)</h3>
+                        <p class="mt-4 text-gray-700">
+                            Este é o cenário principal da sua formação (32h/semana). Você será o médico de referência
+                            para uma população adscrita, atuando com sua equipe de forma longitudinal e integral.
+                        </p>
+                        <!-- Adicionando a nota sobre realidade que estava no PDF -->
+                        <div class="mt-4 border-l-4 border-blue-800 pl-4">
+                            <h4 class="font-semibold text-gray-800">Uma Nota Importante sobre a Realidade:</h4>
+                            <p class="text-gray-700 italic">
+                                A Atenção Primária no SUS é potente, mas também cheia de desafios. Você vivenciará as
+                                contradições e fragilidades do sistema. Nosso papel não é ignorá-las, mas formar
+                                especialistas capazes de conduzir essas dificuldades da forma mais ética e assertiva
+                                possível, buscando sempre o melhor cuidado.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Diagnóstico Situacional -->
+                    <div class="bg-gray-100 p-8 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-semibold text-blue-950">Diagnóstico Situacional (Atividade Inicial)</h3>
+                        <p class="mt-4 text-gray-700">
+                            Sua primeira grande tarefa no R1 será realizar o Diagnóstico Situacional do
+                            seu território. Sob orientação, você utilizará ferramentas como a Estimativa
+                            Participativa Rápida (EPR) para conhecer profundamente a área adscrita.
+                        </p>
+                    </div>
+
+                    <!-- Estágios -->
+                    <div>
+                        <h3 class="text-2xl font-semibold text-blue-950 text-center mb-8">Estágios (Rodízios) Trimestrais</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="bg-white border border-gray-200 p-6 rounded-lg">
+                                <h4 class="text-lg font-bold text-blue-800">Estágios R1</h4>
+                                <ul class="mt-4 list-disc list-inside space-y-2 text-gray-700">
+                                    <li>Urgência e Emergência (Unidade 24h Colônia Treze)</li>
+                                    <li>Ambulatório de Psiquiatria (UFS)</li>
+                                    <li>Pronto-Socorro de Pediatria (HUL)</li>
+                                </ul>
+                            </div>
+                            <div class="bg-white border border-gray-200 p-6 rounded-lg">
+                                <h4 class="text-lg font-bold text-blue-800">Estágios R2</h4>
+                                <ul class="mt-4 list-disc list-inside space-y-2 text-gray-700">
+                                    <li>Ambulatório de Saúde Trans (UFS)</li>
+                                    <li>Ambulatório de Pré-Natal de Alto Risco (HUL)</li>
+                                    <li>[Definição do 3º Estágio R2]</li>
+                                    <li>Estágio Eletivo (Optativo)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-blue-950">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <p class="text-center text-sm text-blue-200">
+                &copy; 2025 Programa de Residência em Medicina de Família e Comunidade - Lagarto/SE.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Script do Alpine.js para o menu mobile -->
+    <script src="//unpkg.com/alpinejs" defer></script>
+</body>
+
+</html>
