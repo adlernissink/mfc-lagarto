@@ -5,8 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PRMFC Lagarto - Início</title>
-
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração do Tailwind (para Inter e cores) -->
     <script>
         tailwind.config = {
             theme: {
@@ -23,10 +24,13 @@
             }
         }
     </script>
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    
+    <!-- Alpine.js para o menu mobile -->
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Estilo para esconder elementos do Alpine antes de carregar -->
     <style>
         [x-cloak] { display: none !important; }
     </style>
@@ -35,12 +39,14 @@
 <body class="font-sans antialiased text-gray-800">
 
     <!-- 
-      Componente de Navegação (Menu)
-      Este menu é copiado em todas as páginas.
+      Menu de Navegação
+      - `sticky top-0 z-50`: Mantém o menu fixo no topo
+      - `x-data="{ open: false }"`: Inicializa o estado do menu mobile (Alpine.js)
     -->
     <nav class="bg-white shadow-md sticky top-0 z-50" x-data="{ open: false }">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
+                <!-- Logo e Título -->
                 <div class="flex-shrink-0 flex items-center">
                     <a href="/mfc-lagarto/index.html" class="flex items-center space-x-2 text-xl font-bold text-blue-950">
                         <img class="h-8 w-auto" src="/mfc-lagarto/logo_mfc.png" alt="Logotipo PRMFC Lagarto" 
@@ -49,21 +55,28 @@
                     </a>
                 </div>
                 
+                <!-- Links do Menu (Desktop) -->
                 <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                    <!-- Link Ativo -->
                     <a href="/mfc-lagarto/index.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-blue-800 text-sm font-medium text-gray-900">Início</a>
                     <a href="/mfc-lagarto/sobre.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Sobre</a>
                     <a href="/mfc-lagarto/programa.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">O Programa</a>
-                    <a href="/mfc-lagarto/manual.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Manual (Restrito)</a>
                     <a href="/mfc-lagarto/contato.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Contato</a>
+                    <!-- Link Destacado -->
+                    <a href="/mfc-lagarto/area-residente.html" class="my-auto inline-flex items-center px-4 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-800 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-700">
+                        Área do Residente
+                    </a>
                 </div>
 
                 <!-- Botão do Menu "Burger" (Mobile) -->
                 <div class="-mr-2 flex items-center sm:hidden">
                     <button @click="open = !open" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-800" aria-controls="mobile-menu" aria-expanded="false">
                         <span class="sr-only">Abrir menu</span>
+                        <!-- Ícone do menu (fechado) -->
                         <svg x-show="!open" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
                         </svg>
+                        <!-- Ícone do "X" (aberto) -->
                         <svg x-show="open" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true" x-cloak>
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -75,68 +88,52 @@
         <!-- Menu Aberto (Mobile) -->
         <div class="sm:hidden" id="mobile-menu" x-show="open" x-cloak @click.away="open = false">
             <div class="pt-2 pb-3 space-y-1">
-                <a href="index.html" class="block pl-3 pr-4 py-2 border-l-4 border-blue-800 bg-blue-50 text-base font-medium text-blue-800">Início</a>
-                <a href="sobre.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Sobre</a>
-                <a href="programa.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">O Programa</a>
-                <a href="manual.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Manual (Restrito)</a>
-                <a href="contato.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Contato</a>
+                <a href="/mfc-lagarto/index.html" class="block pl-3 pr-4 py-2 border-l-4 border-blue-800 bg-blue-50 text-base font-medium text-blue-800">Início</a>
+                <a href="/mfc-lagarto/sobre.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Sobre</a>
+                <a href="/mfc-lagarto/programa.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">O Programa</a>
+                <a href="/mfc-lagarto/contato.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Contato</a>
+                <!-- Link Destacado (Mobile) -->
+                <a href="/mfc-lagarto/area-residente.html" class="block pl-3 pr-4 py-3 border-l-4 border-transparent text-base font-medium text-white bg-blue-800 hover:bg-blue-700">
+                    Área do Residente
+                </a>
             </div>
         </div>
     </nav>
 
     <!-- Conteúdo da Página -->
     <main>
-        <!-- Seção 1: Início (Boas-Vindas) -->
-        <section id="inicio" class="bg-blue-950 text-white pt-20 pb-24">
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl text-center">
-                <h1 class="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">Boas-vindas à Residência!</h1>
-                <p class="mt-6 text-lg leading-8 text-blue-100">
-                    Programa de Residência em Medicina de Família e Comunidade (PRMFC) de Lagarto.
-                    Uma jornada de dois anos de imersão profunda, aprendizado intenso e transformação da saúde pública.
+        <!-- Seção Hero -->
+        <section class="bg-gray-100">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 text-center">
+                <h1 class="text-4xl font-bold tracking-tight text-blue-950 sm:text-6xl">
+                    Residência em Medicina de Família e Comunidade
+                </h1>
+                <p class="mt-6 text-lg leading-8 text-gray-600">
+                    Formando especialistas em cuidado centrado na pessoa para o SUS em Lagarto/SE.
                 </p>
                 <div class="mt-10">
-                    <a href="programa.html" class="rounded-md bg-blue-800 px-3.5 py-2.5 text-sm font-semibold shadow-sm hover:bg-blue-700">Conheça o Programa</a>
+                    <a href="/mfc-lagarto/programa.html" class="rounded-md bg-blue-800 px-3.5 py-2.5 text-sm font-semibold shadow-sm hover:bg-blue-700">Conheça o Programa</a>
                 </div>
             </div>
         </section>
 
-        <!-- Seção 2: Notícias Rápidas (Placeholder) -->
-        <section id="noticias" class="py-20 bg-gray-100">
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-                <div class="text-center">
-                    <h2 class="text-3xl font-bold tracking-tight text-blue-950 sm:text-4xl">Notícias e Avisos</h2>
-                    <p class="mt-4 text-lg text-gray-600">Fique por dentro das últimas novidades do programa.</p>
-                </div>
-
-                <!-- Conteúdo das Notícias -->
-                <div class="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Notícia 1 (Exemplo) -->
-                    <div class="bg-white p-6 rounded-lg shadow-lg">
-                        <span class="text-sm text-gray-500">01 de Nov, 2025</span>
-                        <h3 class="mt-2 text-xl font-semibold text-blue-950">Inscrições Abertas CBMFC 2026</h3>
-                        <p class="mt-3 text-gray-600">O prazo para submissão de trabalhos foi prorrogado. Participe!</p>
-                        <a href="#" class="mt-4 inline-block text-blue-800 font-medium hover:text-blue-700">Leia mais &rarr;</a>
-                    </div>
-                    <!-- Notícia 2 (Exemplo) -->
-                    <div class="bg-white p-6 rounded-lg shadow-lg">
-                        <span class="text-sm text-gray-500">15 de Out, 2025</span>
-                        <h3 class="mt-2 text-xl font-semibold text-blue-950">Novo Estágio R2 Confirmado</h3>
-                        <p class="mt-3 text-gray-600">Parceria firmada para o novo ambulatório de [Nome do Estágio].</p>
-                        <a href="#" class="mt-4 inline-block text-blue-800 font-medium hover:text-blue-700">Leia mais &rarr;</a>
-                    </div>
-                    <!-- Notícia 3 (Exemplo) -->
-                    <div class="bg-white p-6 rounded-lg shadow-lg">
-                        <span class="text-sm text-gray-500">10 de Out, 2025</span>
-                        <h3 class="mt-2 text-xl font-semibold text-blue-950">Sessão Clínica Quinzenal</h3>
-                        <p class="mt-3 text-gray-600">Próximo encontro: "Manejo da Dor Crônica na APS". Não perca.</p>
-                        <a href="#" class="mt-4 inline-block text-blue-800 font-medium hover:text-blue-700">Ver agenda &rarr;</a>
-                    </div>
+        <!-- Seção de Notícias/Boas-vindas -->
+        <section class="py-24 sm:py-32">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+                <h2 class="text-3xl font-bold tracking-tight text-blue-950 text-center">Boas-vindas à Turma 2025!</h2>
+                <div class="mt-10 text-gray-700 space-y-6">
+                    <p>
+                        A sua chegada representa a continuidade de um projeto que acreditamos ser transformador para a saúde da população local e essencial para a consolidação da Atenção Primária à Saúde (APS) em nosso município.
+                    </p>
+                    <p>
+                        A Medicina de Família e Comunidade é a especialidade da complexidade, do cuidado centrado na pessoa e da gestão da saúde ao longo da vida. Estes próximos dois anos serão de imersão profunda, aprendizado intenso e, sem dúvida, de muitas contribuições. Contamos com você.
+                    </p>
                 </div>
             </div>
         </section>
-
     </main>
 
+    <!-- Footer -->
     <footer class="bg-blue-950">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <p class="text-center text-sm text-blue-200">
@@ -145,8 +142,5 @@
         </div>
     </footer>
 
-    <!-- Script do Alpine.js para o menu mobile -->
-    <script src="//unpkg.com/alpinejs" defer></script>
 </body>
-
 </html>
