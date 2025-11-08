@@ -32,14 +32,6 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- Firebase SDKs -->
-    <!-- 
-      ATUALIZAÇÃO 1: 'type_to_remove' foi alterado para 'type="module"'.
-      Isso é OBRIGATÓRIO para o Firebase v10+ funcionar.
-      Lembrete: Arquivos com `type="module"` não funcionam se você apenas
-      abrir o HTML do seu computador (file:///...). 
-      Você DEVE usar um servidor local (como a extensão "Live Server" do VS Code)
-      ou fazer o deploy no GitHub Pages para testar.
-    -->
     <script type="module">
         // SDKs do Firebase v10+
         // Sinta-se à vontade para usar versões mais recentes
@@ -152,9 +144,7 @@
         // ===========================================
         // 1. CONFIGURAÇÃO DO FIREBASE
         // ===========================================
-        // !! IMPORTANTE !!
-        // Cole aqui o objeto de configuração do seu projeto Firebase
-        // Você encontra isso no Console do Firebase > Configurações do Projeto
+
         const firebaseConfig = {
           apiKey: "AIzaSyCm7rxloAIEBeh3_M8Cr8AptRyzPtlsCdc",
           authDomain: "prmfc-lagarto-site.firebaseapp.com",
