@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRMFC Lagarto - Sobre</title>
+    <title>PRMFC Lagarto - Sobre Nós</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -25,6 +25,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }
     </style>
@@ -32,13 +33,11 @@
 
 <body class="font-sans antialiased text-gray-800">
 
-    <!-- 
-      Componente de Navegação (Menu)
-      Note que a classe "ativa" está no "Sobre".
-    -->
+    <!-- Menu de Navegação -->
     <nav class="bg-white shadow-md sticky top-0 z-50" x-data="{ open: false }">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
+                <!-- Logo e Título -->
                 <div class="flex-shrink-0 flex items-center">
                     <a href="/mfc-lagarto/index.html" class="flex items-center space-x-2 text-xl font-bold text-blue-950">
                         <img class="h-8 w-auto" src="/mfc-lagarto/logo_mfc.png" alt="Logotipo PRMFC Lagarto" 
@@ -47,13 +46,17 @@
                     </a>
                 </div>
                 
+                <!-- Links do Menu (Desktop) -->
                 <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                     <a href="/mfc-lagarto/index.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Início</a>
                     <!-- Link Ativo -->
                     <a href="/mfc-lagarto/sobre.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-blue-800 text-sm font-medium text-gray-900">Sobre</a>
                     <a href="/mfc-lagarto/programa.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">O Programa</a>
-                    <a href="/mfc-lagarto/manual.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Manual (Restrito)</a>
                     <a href="/mfc-lagarto/contato.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Contato</a>
+                    <!-- Link Destacado -->
+                    <a href="/mfc-lagarto/area-residente.html" class="my-auto inline-flex items-center px-4 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-800 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-700">
+                        Área do Residente
+                    </a>
                 </div>
 
                 <!-- Botão do Menu "Burger" (Mobile) -->
@@ -74,74 +77,79 @@
         <!-- Menu Aberto (Mobile) -->
         <div class="sm:hidden" id="mobile-menu" x-show="open" x-cloak @click.away="open = false">
             <div class="pt-2 pb-3 space-y-1">
-                <a href="index.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Início</a>
-                <a href="sobre.html" class="block pl-3 pr-4 py-2 border-l-4 border-blue-800 bg-blue-50 text-base font-medium text-blue-800">Sobre</a>
-                <a href="programa.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">O Programa</a>
-                <a href="manual.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Manual (Restrito)</a>
-                <a href="contato.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Contato</a>
+                <a href="/mfc-lagarto/index.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Início</a>
+                <a href="/mfc-lagarto/sobre.html" class="block pl-3 pr-4 py-2 border-l-4 border-blue-800 bg-blue-50 text-base font-medium text-blue-800">Sobre</a>
+                <a href="/mfc-lagarto/programa.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">O Programa</a>
+                <a href="/mfc-lagarto/contato.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Contato</a>
+                <a href="/mfc-lagarto/area-residente.html" class="block pl-3 pr-4 py-3 border-l-4 border-transparent text-base font-medium text-white bg-blue-800 hover:bg-blue-700">
+                    Área do Residente
+                </a>
             </div>
         </div>
     </nav>
 
     <!-- Conteúdo da Página -->
-    <main>
-        <!-- Seção 2: Sobre (História e Equipe) -->
-        <section id="sobre" class="py-20 bg-gray-100">
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-                <div class="text-center">
-                    <h2 class="text-3xl font-bold tracking-tight text-blue-950 sm:text-4xl">Nossa História e Nossa Equipe</h2>
-                    <p class="mt-4 text-lg text-gray-600">Nascemos em 2020 da parceria entre a SMS Lagarto e a UFS, buscando formar especialistas de excelência para o SUS.</p>
+    <main class="py-24 sm:py-32 bg-gray-100">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+            
+            <!-- Nossa História -->
+            <section>
+                <h2 class="text-3xl font-bold tracking-tight text-blue-950 sm:text-4xl text-center">Nossa História</h2>
+                <div class="mt-8 text-gray-700 space-y-6">
+                    <p>Nosso programa é jovem, mas em rápida expansão. Nascemos em 2020, fruto da parceria entre a Secretaria Municipal de Saúde (SMS) de Lagarto e a Universidade Federal de Sergipe (UFS).</p>
+                    <p>Começamos pequenos e hoje temos orgulho de oferecer três vagas anuais, com acesso via Exame Nacional de Residência (ENARE), buscando formar especialistas de excelência para o SUS.</p>
                 </div>
+            </section>
 
-                <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-10">
-                    <!-- Equipe Pedagógica -->
-                    <h3 class="text-xl font-semibold text-blue-950 md:col-span-3 text-center">A Equipe Pedagógica</h3>
-                    
+            <!-- Equipe Pedagógica -->
+            <section class="mt-20">
+                <h2 class="text-3xl font-bold tracking-tight text-blue-950 sm:text-4xl text-center">Equipe Pedagógica</h2>
+                <p class="mt-4 text-lg text-gray-600 text-center">Você não estará sozinho. Esta é a equipe diretamente responsável pela sua formação:</p>
+                
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Card 1 -->
                     <div class="bg-white p-6 rounded-lg shadow-lg text-center">
-                        <h4 class="text-lg font-bold text-blue-950">Profa. Dra. Cátia Justo</h4>
-                        <p class="text-sm text-blue-800">Supervisora do Programa</p>
-                        <p class="mt-2 text-sm text-gray-600">Responsável pela interface com a COREME e decisões estratégicas.</p>
+                        <h3 class="text-lg font-semibold text-blue-950">Profa. Dra. Cátia Justo</h3>
+                        <p class="mt-1 text-sm text-blue-800 font-medium">Supervisora do Programa</p>
+                        <p class="mt-3 text-sm text-gray-600">Responsável pela interface com a COREME e pelas decisões estratégicas do programa.</p>
                     </div>
-
+                    <!-- Card 2 -->
                     <div class="bg-white p-6 rounded-lg shadow-lg text-center">
-                        <h4 class="text-lg font-bold text-blue-950">Dra. Nathália de Mattos</h4>
-                        <p class="text-sm text-blue-800">Coordenadora e Preceptora</p>
-                        <p class="mt-2 text-sm text-gray-600">Acompanhamento direto das atividades e evolução pedagógica.</p>
+                        <h3 class="text-lg font-semibold text-blue-950">Dra. Nathália de Mattos</h3>
+                        <p class="mt-1 text-sm text-blue-800 font-medium">Coordenadora e Preceptora</p>
+                        <p class="mt-3 text-sm text-gray-600">Acompanhamento direto das atividades e da evolução pedagógica.</p>
                     </div>
-
+                    <!-- Card 3 -->
                     <div class="bg-white p-6 rounded-lg shadow-lg text-center">
-                        <h4 class="text-lg font-bold text-blue-950">Dr. Adler Nissink</h4>
-                        <p class="text-sm text-blue-800">Docente e Preceptor</p>
-                        <p class="mt-2 text-sm text-gray-600">Supervisão das atividades práticas e teóricas.</p>
+                        <h3 class="text-lg font-semibold text-blue-950">Dr. Adler Nissink</h3>
+                        <p class="mt-1 text-sm text-blue-800 font-medium">Docente e Preceptor</p>
+                        <p class="mt-3 text-sm text-gray-600">Atuação direta na supervisão das atividades práticas e teóricas.</p>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Seção 5: Parceiros -->
-        <section id="parceiros" class="py-20 bg-white">
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-                <div class="text-center">
-                    <h2 class="text-3xl font-bold tracking-tight text-blue-950 sm:text-4xl">Nossos Parceiros</h2>
-                    <p class="mt-4 text-lg text-gray-600">Este programa só existe graças a uma rede de apoio institucional fundamental.</p>
-                </div>
-
+            <!-- Nossos Parceiros -->
+            <section class="mt-20">
+                <h2 class="text-3xl font-bold tracking-tight text-blue-950 sm:text-4xl text-center">Nossos Parceiros</h2>
+                <p class="mt-4 text-lg text-gray-600 text-center">Este programa só existe graças a uma rede de apoio institucional fundamental.</p>
+                
                 <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
-                    <div class="text-center p-4 bg-gray-100 rounded-lg">
-                        <span class="text-lg font-medium text-gray-700">Secretaria Municipal de Saúde de Lagarto (SMS)</span>
+                    <div class="text-center p-4 bg-white rounded-lg shadow">
+                        <span class="text-base font-medium text-gray-700">SMS Lagarto</span>
                     </div>
-                    <div class="text-center p-4 bg-gray-100 rounded-lg">
-                        <span class="text-lg font-medium text-gray-700">Secretaria de Estado da Saúde (SES)</span>
+                    <div class="text-center p-4 bg-white rounded-lg shadow">
+                        <span class="text-base font-medium text-gray-700">SES (Sergipe)</span>
                     </div>
-                    <div class="text-center p-4 bg-gray-100 rounded-lg">
-                        <span class="text-lg font-medium text-gray-700">Universidade Federal de Sergipe (UFS)</span>
+                    <div class="text-center p-4 bg-white rounded-lg shadow">
+                        <span class="text-base font-medium text-gray-700">UFS - Campus Lagarto</span>
                     </div>
-                    <div class="text-center p-4 bg-gray-100 rounded-lg">
-                        <span class="text-lg font-medium text-gray-700">Mestrado Profissional em Saúde da Família (PROFSAUDE/FIOCRUZ)</span>
+                    <div class="text-center p-4 bg-white rounded-lg shadow">
+                        <span class="text-base font-medium text-gray-700">PROFSAUDE/FIOCRUZ</span>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+
+        </div>
     </main>
 
     <!-- Footer -->
@@ -153,8 +161,5 @@
         </div>
     </footer>
 
-    <!-- Script do Alpine.js para o menu mobile -->
-    <script src="//unpkg.com/alpinejs" defer></script>
 </body>
-
 </html>
