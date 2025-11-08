@@ -25,6 +25,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }
     </style>
@@ -32,13 +33,11 @@
 
 <body class="font-sans antialiased text-gray-800">
 
-    <!-- 
-      Componente de Navegação (Menu)
-      Note que a classe "ativa" está no "Contato".
-    -->
+    <!-- Menu de Navegação -->
     <nav class="bg-white shadow-md sticky top-0 z-50" x-data="{ open: false }">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
+                <!-- Logo e Título -->
                 <div class="flex-shrink-0 flex items-center">
                     <a href="/mfc-lagarto/index.html" class="flex items-center space-x-2 text-xl font-bold text-blue-950">
                         <img class="h-8 w-auto" src="/mfc-lagarto/logo_mfc.png" alt="Logotipo PRMFC Lagarto" 
@@ -47,13 +46,17 @@
                     </a>
                 </div>
                 
+                <!-- Links do Menu (Desktop) -->
                 <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                     <a href="/mfc-lagarto/index.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Início</a>
                     <a href="/mfc-lagarto/sobre.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Sobre</a>
                     <a href="/mfc-lagarto/programa.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">O Programa</a>
-                    <a href="/mfc-lagarto/manual.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Manual (Restrito)</a>
                     <!-- Link Ativo -->
                     <a href="/mfc-lagarto/contato.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-blue-800 text-sm font-medium text-gray-900">Contato</a>
+                    <!-- Link Destacado -->
+                    <a href="/mfc-lagarto/area-residente.html" class="my-auto inline-flex items-center px-4 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-800 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-700">
+                        Área do Residente
+                    </a>
                 </div>
 
                 <!-- Botão do Menu "Burger" (Mobile) -->
@@ -74,81 +77,47 @@
         <!-- Menu Aberto (Mobile) -->
         <div class="sm:hidden" id="mobile-menu" x-show="open" x-cloak @click.away="open = false">
             <div class="pt-2 pb-3 space-y-1">
-                <a href="index.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Início</a>
-                <a href="sobre.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Sobre</a>
-                <a href="programa.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">O Programa</a>
-                <a href="manual.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Manual (Restrito)</a>
-                <a href="contato.html" class="block pl-3 pr-4 py-2 border-l-4 border-blue-800 bg-blue-50 text-base font-medium text-blue-800">Contato</a>
+                <a href="/mfc-lagarto/index.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Início</a>
+                <a href="/mfc-lagarto/sobre.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Sobre</a>
+                <a href="/mfc-lagarto/programa.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">O Programa</a>
+                <a href="/mfc-lagarto/contato.html" class="block pl-3 pr-4 py-2 border-l-4 border-blue-800 bg-blue-50 text-base font-medium text-blue-800">Contato</a>
+                <a href="/mfc-lagarto/area-residente.html" class="block pl-3 pr-4 py-3 border-l-4 border-transparent text-base font-medium text-white bg-blue-800 hover:bg-blue-700">
+                    Área do Residente
+                </a>
             </div>
         </div>
     </nav>
 
     <!-- Conteúdo da Página -->
-    <main>
-        <section id="contato" class="py-20 bg-gray-100">
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
-                <div class="text-center">
-                    <h2 class="text-3xl font-bold tracking-tight text-blue-950 sm:text-4xl">Entre em Contato</h2>
-                    <p class="mt-4 text-lg text-gray-600">Dúvidas, sugestões ou interesse no programa?</p>
-                </div>
+    <main class="py-24 sm:py-32 bg-gray-100 min-h-[70vh]">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
+            <h2 class="text-3xl font-bold tracking-tight text-blue-950 sm:text-4xl text-center">Contato</h2>
+            <p class="mt-4 text-lg text-gray-600 text-center">Entre em contato com a coordenação do programa.</p>
 
-                <div class="mt-16 bg-white p-8 rounded-lg shadow-lg">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <!-- Informações de Contato -->
-                        <div>
-                            <h3 class="text-xl font-semibold text-blue-950">Informações</h3>
-                            <p class="mt-4 text-gray-700">
-                                Para assuntos relacionados à coordenação pedagógica ou administrativa da residência:
-                            </p>
-                            <div class="mt-4 space-y-2">
-                                <p class="text-gray-600">
-                                    <span class="font-medium text-gray-800">Email (Coordenação):</span>
-                                    <br>
-                                    <a href="mailto:email.coordenacao@exemplo.com" class="text-blue-800 hover:underline">email.coordenacao@exemplo.com</a>
-                                </p>
-                                <p class="text-gray-600">
-                                    <span class="font-medium text-gray-800">Email (Secretaria):</span>
-                                    <br>
-                                    <a href="mailto:email.secretaria@exemplo.com" class="text-blue-800 hover:underline">email.secretaria@exemplo.com</a>
-                                </p>
-                                <p class="text-gray-600">
-                                    <span class="font-medium text-gray-800">Endereço:</span>
-                                    <br>
-                                    Universidade Federal de Sergipe, Campus Lagarto.
-                                    <br>
-                                    Av. Gov. Marcelo Déda, 13, Lagarto - SE
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Placeholder para Formulário (ainda não funcional) -->
-                        <div>
-                            <h3 class="text-xl font-semibold text-blue-950">Formulário de Contato</h3>
-                            <p class="mt-4 text-sm text-gray-500 italic">
-                                (Nota: O formulário abaixo é apenas um design. Para fazê-lo funcionar, é necessário um serviço de backend, como Netlify Forms, Formspree ou Firebase.)
-                            </p>
-                            <form class="mt-4 space-y-4">
-                                <div>
-                                    <label for="name" class="block text-sm font-medium text-gray-700">Nome</label>
-                                    <input type="text" id="name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100" disabled>
-                                </div>
-                                <div>
-                                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                                    <input type="email" id="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100" disabled>
-                                </div>
-                                <div>
-                                    <label for="message" class="block text-sm font-medium text-gray-700">Mensagem</label>
-                                    <textarea id="message" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100" disabled></textarea>
-                                </div>
-                                <button type="button" class="w-full py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-gray-400 cursor-not-allowed">
-                                    Enviar (Desabilitado)
-                                </button>
-                            </form>
-                        </div>
+            <div class="mt-12 bg-white p-8 rounded-lg shadow-lg">
+                <h3 class="text-xl font-semibold text-blue-950 mb-6">Informações de Contato</h3>
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="font-semibold text-gray-800">Coordenação (Geral)</h4>
+                        <p class="text-sm text-gray-600">Para assuntos pedagógicos, administrativos e parcerias.</p>
+                        <p class="mt-1 text-blue-800">coordenacao.mfc.lagarto@email.com</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800">Supervisão (COREME)</h4>
+                        <p class="text-sm text-gray-600">Para assuntos relacionados à COREME/UFS.</p>
+                        <p class="mt-1 text-blue-800">supervisao.mfc.lagarto@email.com</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800">Endereço</h4>
+                        <p class="text-sm text-gray-600">
+                            Universidade Federal de Sergipe - Campus Lagarto<br>
+                            Av. Gov. Marcelo Déda, 13 - Lagarto/SE
+                        </p>
                     </div>
                 </div>
             </div>
-        </section>
+
+        </div>
     </main>
 
     <!-- Footer -->
@@ -160,8 +129,5 @@
         </div>
     </footer>
 
-    <!-- Script do Alpine.js para o menu mobile -->
-    <script src="//unpkg.com/alpinejs" defer></script>
 </body>
-
 </html>
