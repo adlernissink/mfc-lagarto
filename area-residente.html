@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRMFC Lagarto - Área do Residente</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração do Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 'sans': ['Inter', 'sans-serif'] },
+                    colors: {
+                        'blue-950': '#1C3D5A',
+                        'blue-800': '#2D6FAD',
+                        'gray-100': '#F4F7F6',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Alpine.js (para o menu de navegação) -->
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- React + Babel (para a aplicação) -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Firebase SDKs -->
+    <!-- 
+      ATUALIZAÇÃO 1: 'type_to_remove' foi alterado para 'type="module"'.
+      Isso é OBRIGATÓRIO para o Firebase v10+ funcionar.
+      Lembrete: Arquivos com `type="module"` não funcionam se você apenas
+      abrir o HTML do seu computador (file:///...). 
+      Você DEVE usar um servidor local (como a extensão "Live Server" do VS Code)
+      ou fazer o deploy no GitHub Pages para testar.
+    -->
+    <script type="module">
+        // SDKs do Firebase v10+
+        // Sinta-se à vontade para usar versões mais recentes
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        
+        // Exponha as funções do Firebase para o script Babel
+        window.firebase = {
+            initializeApp,
+            getAuth,
+            onAuthStateChanged,
+            signInWithEmailAndPassword,
+            signOut,
+            getFirestore,
+            doc,
+            getDoc,
+            setDoc,
+            updateDoc,
+            collection,
+            getDocs,
+            query,
+            where
+        };
+    </script>
+    <style>
+        [x-cloak] { display: none !important; }
+        /* Estilos para o loader */
+        .loader {
+            border-top-color: #2D6FAD;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-gray-800 bg-gray-100">
+
+    <!-- Menu de Navegação (Consistente com as outras páginas) -->
+    <nav class="bg-white shadow-md sticky top-0 z-50" x-data="{ open: false }">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="/mfc-lagarto/index.html" class="flex items-center space-x-2 text-xl font-bold text-blue-950">
+                        <img class="h-8 w-auto" src="/mfc-lagarto/logo_mfc.png" alt="Logotipo PRMFC Lagarto" onerror="this.style.display='none'">
+                        <span>PRMFC Lagarto</span>
+                    </a>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                    <a href="/mfc-lagarto/index.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Início</a>
+                    <a href="/mfc-lagarto/sobre.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Sobre</a>
+                    <a href="/mfc-lagarto/programa.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">O Programa</a>
+                    <a href="/mfc-lagarto/contato.html" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">Contato</a>
+                    <!-- Link Destacado e Ativo -->
+                    <a href="/mfc-lagarto/area-residente.html" class="my-auto inline-flex items-center px-4 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-950 hover:bg-blue-800 ring-2 ring-offset-2 ring-blue-800">
+                        Área do Residente
+                    </a>
+                </div>
+                <div class="-mr-2 flex items-center sm:hidden">
+                    <button @click="open = !open" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-800" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Abrir menu</span>
+                        <svg x-show="!open" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                        <svg x-show="open" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true" x-cloak><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Menu Aberto (Mobile) -->
+        <div class="sm:hidden" id="mobile-menu" x-show="open" x-cloak @click.away="open = false">
+            <div class="pt-2 pb-3 space-y-1">
+                <a href="/mfc-lagarto/index.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Início</a>
+                <a href="/mfc-lagarto/sobre.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Sobre</a>
+                <a href="/mfc-lagarto/programa.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">O Programa</a>
+                <a href="/mfc-lagarto/contato.html" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Contato</a>
+                <a href="/mfc-lagarto/area-residente.html" class="block pl-3 pr-4 py-3 border-l-4 border-blue-800 text-base font-medium text-white bg-blue-800 hover:bg-blue-700">
+                    Área do Residente
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Ponto de Montagem do App React -->
+    <div id="root" class="min-h-[80vh]"></div>
+
+    <!-- Footer -->
+    <footer class="bg-blue-950">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <p class="text-center text-sm text-blue-200">
+                &copy; 2025 Programa de Residência em Medicina de Família e Comunidade - Lagarto/SE.
+            </p>
+        </div>
+    </footer>
+
+
+    <!-- 
+      ============================================
+      INÍCIO DA APLICAÇÃO REACT (via Babel)
+      ============================================
+    -->
+    <script type="text/babel">
+        // Importa funções do React
+        const { useState, useEffect, useCallback, StrictMode } = React;
+        // Importa funções do Firebase (expostas na window)
+        const {
+            initializeApp, getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut,
+            getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, query, where
+        } = window.firebase;
+
+        // ===========================================
+        // 1. CONFIGURAÇÃO DO FIREBASE
+        // ===========================================
+        // !! IMPORTANTE !!
+        // Cole aqui o objeto de configuração do seu projeto Firebase
+        // Você encontra isso no Console do Firebase > Configurações do Projeto
+        const firebaseConfig = {
+          apiKey: "AIzaSyCm7rxloAIEBeh3_M8Cr8AptRyzPtlsCdc",
+          authDomain: "prmfc-lagarto-site.firebaseapp.com",
+          projectId: "prmfc-lagarto-site",
+          storageBucket: "prmfc-lagarto-site.firebasestorage.app",
+          messagingSenderId: "370143866875",
+          appId: "1:370143866875:web:dbc0e91916675ede12255e",
+          measurementId: "G-YQNS20DJFS"
+        };
+
+        // Inicializa o Firebase
+        let firebase_app;
+        let firestore_db;
+        let firebase_auth;
+
+        try {
+            firebase_app = initializeApp(firebaseConfig);
+            firestore_db = getFirestore(firebase_app);
+            firebase_auth = getAuth(firebase_app);
+        } catch (e) {
+            console.error("Erro ao inicializar o Firebase:", e);
+            if (e.code === 'invalid-api-key') {
+                alert("Erro: A chave da API do Firebase não é válida. Verifique a configuração 'firebaseConfig' no arquivo area-residente.html.");
+            }
+        }
+
+        // ===========================================
+        // 2. COMPONENTE PRINCIPAL: App
+        // ===========================================
+        function App() {
+            return (
+                <StrictMode>
+                    <AuthGate />
+                </StrictMode>
+            );
+        }
+
+        // ===========================================
+        // 3. COMPONENTE: AuthGate (Portão de Autenticação)
+        // Controla se mostra Login ou Dashboard
+        // ===========================================
+        function AuthGate() {
+            const [user, setUser] = useState(null); // Info do Auth (login)
+            const [userData, setUserData] = useState(null); // Info do Firestore (role, nome)
+            const [isLoading, setIsLoading] = useState(true);
+
+            useEffect(() => {
+                // Ouve mudanças no estado de login
+                const unsubscribe = onAuthStateChanged(firebase_auth, async (currentUser) => {
+                    if (currentUser) {
+                        // Usuário está logado
+                        setUser(currentUser);
+                        try {
+                            // Busca os dados adicionais (role, nome) no Firestore
+                            const userDocRef = doc(firestore_db, "users", currentUser.uid);
+                            const userDocSnap = await getDoc(userDocRef);
+                            
+                            if (userDocSnap.exists()) {
+                                setUserData(userDocSnap.data());
+                            } else {
+                                console.error("Documento do usuário não encontrado no Firestore!");
+                                // Desloga se não houver dados
+                                await signOut(firebase_auth); 
+                            }
+                        } catch (error) {
+                            console.error("Erro ao buscar dados do usuário:", error);
+                        }
+                    } else {
+                        // Usuário está deslogado
+                        setUser(null);
+                        setUserData(null);
+                    }
+                    setIsLoading(false);
+                });
+
+                // Limpa o listener ao desmontar
+                return () => unsubscribe();
+            }, []);
+
+            if (isLoading) {
+                return <Loader message="Carregando..." />;
+            }
+
+            if (user && userData) {
+                // Logado e com dados: mostra o painel
+                return <Dashboard user={user} userData={userData} />;
+            }
+
+            // Deslogado: mostra a tela de login
+            return <LoginScreen />;
+        }
+
+        // ===========================================
+        // 4. COMPONENTE: LoginScreen
+        // ===========================================
+        function LoginScreen() {
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [error, setError] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+
+            const handleLogin = async (e) => {
+                e.preventDefault();
+                setIsLoading(true);
+                setError('');
+                try {
+                    await signInWithEmailAndPassword(firebase_auth, email, password);
+                    // O onAuthStateChanged no AuthGate vai cuidar do resto
+                } catch (error) {
+                    console.error("Erro no login:", error.code);
+                    if (error.code === 'auth/invalid-credential') {
+                        setError('E-mail ou senha inválidos.');
+                    } else {
+                        setError('Ocorreu um erro ao tentar logar.');
+                    }
+                    setIsLoading(false);
+                }
+            };
+
+            return (
+                <div className="flex items-center justify-center py-20 bg-gray-100">
+                    <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
+                        <div className="text-center">
+                            <img className="h-12 w-auto mx-auto" src="/mfc-lagarto/logo_mfc.png" alt="Logotipo PRMFC Lagarto" />
+                            <h2 className="mt-4 text-2xl font-bold text-blue-950">Área do Residente</h2>
+                            <p className="mt-2 text-gray-600">Acesso restrito para residentes e coordenação.</p>
+                        </div>
+                        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-medium text-gray-700">E-mail</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="password" class="block text-sm font-medium text-gray-700">Senha</label>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
+                                />
+                            </div>
+                            
+                            {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+                            
+                            <div>
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-800 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-800 disabled:bg-gray-400"
+                                >
+                                    {isLoading ? 'Entrando...' : 'Entrar'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            );
+        }
+
+        // ===========================================
+        // 5. COMPONENTE: Dashboard
+        // Decide qual painel (Residente ou Coord) mostrar
+        // ===========================================
+        function Dashboard({ user, userData }) {
+            const handleLogout = async () => {
+                try {
+                    await signOut(firebase_auth);
+                } catch (error) {
+                    console.error("Erro ao deslogar:", error);
+                }
+            };
+
+            return (
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 max-w-7xl">
+                    <header className="flex justify-between items-center mb-8">
+                        <div>
+                            <h1 className="text-2xl font-bold text-blue-950">Bem-vindo(a), {userData.nome}</h1>
+                            <p className="text-gray-600">Painel de {userData.role === 'coord' ? 'Coordenação' : 'Residente'}</p>
+                        </div>
+                        <button
+                            onClick={handleLogout}
+                            className="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-950 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-800"
+                        >
+                            Sair
+                        </button>
+                    </header>
+                    
+                    <main>
+                        {userData.role === 'coord' ? (
+                            <CoordDashboard />
+                        ) : (
+                            <ResidenteDashboard userId={user.uid} />
+                        )}
+                    </main>
+                </div>
+            );
+        }
+
+        // ===========================================
+        // 6. COMPONENTE: ResidenteDashboard
+        // ===========================================
+        function ResidenteDashboard({ userId }) {
+            const [atividades, setAtividades] = useState(null);
+            const [isLoading, setIsLoading] = useState(true);
+
+            useEffect(() => {
+                const fetchAtividades = async () => {
+                    try {
+                        const atividadesDocRef = doc(firestore_db, "atividades", userId);
+                        const docSnap = await getDoc(atividadesDocRef);
+                        if (docSnap.exists()) {
+                            setAtividades(docSnap.data());
+                        } else {
+                            // Cria um doc de atividades vazio se não existir
+                            await setDoc(atividadesDocRef, { atual: "Aguardando definição", futuras: [] });
+                            setAtividades({ atual: "Aguardando definição", futuras: [] });
+                        }
+                    } catch (error) {
+                        console.error("Erro ao buscar atividades:", error);
+                    }
+                    setIsLoading(false);
+                };
+                fetchAtividades();
+            }, [userId]);
+
+            if (isLoading) {
+                return <Loader message="Carregando atividades..." />;
+            }
+
+            return (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Coluna de Atividades */}
+                    <div className="bg-white p-8 rounded-lg shadow-lg">
+                        <h3 className="text-xl font-semibold text-blue-950 mb-6">Minhas Atividades</h3>
+                        
+                        <div>
+                            <h4 className="font-semibold text-gray-800">Atividade Atual</h4>
+                            <p className="mt-2 text-gray-600 bg-blue-50 p-4 rounded-md">
+                                {atividades?.atual || "Nenhuma atividade definida."}
+                            </p>
+                        </div>
+                        
+                        <div className="mt-6">
+                            <h4 className="font-semibold text-gray-800">Atividades Futuras</h4>
+                            {atividades?.futuras.length > 0 ? (
+                                <ul className="mt-3 space-y-3">
+                                    {atividades.futuras.map((item, index) => (
+                                        <li key={index} className="p-3 bg-gray-100 rounded-md">
+                                            <span className="font-medium text-blue-800">{item.data}</span>
+                                            <p className="text-sm text-gray-700">{item.desc}</p>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="mt-2 text-gray-500">Nenhuma atividade futura agendada.</p>
+                            )}
+                        </div>
+                    </div>
+                    
+                    {/* Coluna de Materiais */}
+                    <div className="bg-white p-8 rounded-lg shadow-lg">
+                        <h3 className="text-xl font-semibold text-blue-950 mb-6">Materiais para Download</h3>
+                        <p className="text-sm text-gray-600 mb-4">Links rápidos para protocolos, portfólio e guias (requerem Firebase Storage configurado).</p>
+                        <ul className="space-y-3">
+                            <li><a href="#" className="text-blue-800 hover:underline">Modelo de Portfólio.docx</a></li>
+                            <li><a href="#" className="text-blue-800 hover:underline">Protocolo de Saúde da Mulher.pdf</a></li>
+                            <li><a href="#" className="text-blue-800 hover:underline">Guia Rápido: Infiltração.pdf</a></li>
+                        </ul>
+                    </div>
+                </div>
+            );
+        }
+
+        // ===========================================
+        // 7. COMPONENTE: CoordDashboard
+        // ===========================================
+        function CoordDashboard() {
+            const [residentes, setResidentes] = useState([]); // Lista de todos os residentes
+            const [selectedId, setSelectedId] = useState(''); // UID do residente selecionado
+            const [currentAtividades, setCurrentAtividades] = useState({ atual: '', futuras: [] });
+            const [isLoading, setIsLoading] = useState(true);
+            const [isSaving, setIsSaving] = useState(false);
+            const [message, setMessage] = useState('');
+
+            // 1. Busca todos os residentes na inicialização
+            useEffect(() => {
+                const fetchResidentes = async () => {
+                    try {
+                        const q = query(collection(firestore_db, "users"), where("role", "==", "residente"));
+                        const querySnapshot = await getDocs(q);
+                        const residentesList = querySnapshot.docs.map(doc => ({
+                            uid: doc.id,
+                            ...doc.data()
+                        }));
+                        setResidentes(residentesList);
+                    } catch (error) {
+                        console.error("Erro ao buscar residentes:", error);
+                    }
+                    setIsLoading(false);
+                };
+                fetchResidentes();
+            }, []);
+
+            // 2. Busca atividades quando um residente é selecionado
+            const fetchAtividadesDoResidente = async (uid) => {
+                if (!uid) {
+                    setCurrentAtividades({ atual: '', futuras: [] });
+                    return;
+                }
+                try {
+                    const atividadesDocRef = doc(firestore_db, "atividades", uid);
+                    const docSnap = await getDoc(atividadesDocRef);
+                    if (docSnap.exists()) {
+                        setCurrentAtividades(docSnap.data());
+                    } else {
+                        setCurrentAtividades({ atual: '', futuras: [] });
+                    }
+                } catch (error) {
+                    console.error("Erro ao buscar atividades:", error);
+                }
+            };
+
+            const handleSelectChange = (e) => {
+                const uid = e.target.value;
+                setSelectedId(uid);
+                fetchAtividadesDoResidente(uid);
+            };
+
+            // 3. Salva as atividades
+            const handleSave = async (e) => {
+                e.preventDefault();
+                if (!selectedId) {
+                    setMessage("Por favor, selecione um residente.");
+                    return;
+                }
+                setIsSaving(true);
+                setMessage('');
+                try {
+                    const atividadesDocRef = doc(firestore_db, "atividades", selectedId);
+                    // Usamos `setDoc` com `merge: true` para criar ou atualizar
+                    await setDoc(atividadesDocRef, currentAtividades, { merge: true });
+                    setMessage('Atividades salvas com sucesso!');
+                } catch (error) {
+                    console.error("Erro ao salvar atividades:", error);
+                    setMessage('Erro ao salvar.');
+                }
+                setIsSaving(false);
+                setTimeout(() => setMessage(''), 3000); // Limpa a mensagem
+            };
+
+            // Lidar com a mudança no JSON das atividades futuras
+            const handleFuturasChange = (e) => {
+                try {
+                    const parsedFuturas = JSON.parse(e.target.value);
+                    if (Array.isArray(parsedFuturas)) {
+                        setCurrentAtividades(prev => ({ ...prev, futuras: parsedFuturas }));
+                    }
+                } catch (error) {
+                    // Se o JSON for inválido, não faz nada (poderia mostrar um erro)
+                    console.warn("JSON inválido para atividades futuras");
+                }
+            };
+
+            if (isLoading) {
+                return <Loader message="Carregando lista de residentes..." />;
+            }
+
+            return (
+                <div className="bg-white p-8 rounded-lg shadow-lg">
+                    <h3 className="text-xl font-semibold text-blue-950 mb-6">Painel de Coordenação</h3>
+                    
+                    <div className="mb-6">
+                        <label htmlFor="residente-select" className="block text-sm font-medium text-gray-700">Selecione o Residente</label>
+                        <select
+                            id="residente-select"
+                            value={selectedId}
+                            onChange={handleSelectChange}
+                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-800 focus:border-blue-800 sm:text-sm rounded-md"
+                        >
+                            <option value="">-- Selecione --</option>
+                            {residentes.map(res => (
+                                <option key={res.uid} value={res.uid}>{res.nome}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {selectedId && (
+                        <form onSubmit={handleSave} className="space-y-6">
+                            <div>
+                                <label htmlFor="atividade-atual" className="block text-sm font-medium text-gray-700">Atividade Atual</label>
+                                <input
+                                    type="text"
+                                    id="atividade-atual"
+                                    value={currentAtividades.atual}
+                                    onChange={(e) => setCurrentAtividades(prev => ({ ...prev, atual: e.target.value }))}
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="atividades-futuras" className="block text-sm font-medium text-gray-700">Atividades Futuras (em formato JSON)</label>
+                                <textarea
+                                    id="atividades-futuras"
+                                    rows="6"
+                                    defaultValue={JSON.stringify(currentAtividades.futuras, null, 2)}
+                                    onBlur={handleFuturasChange} // Atualiza quando o usuário sai do campo
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800 font-mono text-sm"
+                                />
+                                {/* ATUALIZAÇÃO 2: Erro de sintaxe do Babel corrigido.
+                                  O texto com caracteres especiais (como `{}`) foi 
+                                  envolvido por chaves `{ '...' }` para ser 
+                                  interpretado como uma string JS, e não como código JSX.
+                                */}
+                                <p className="mt-2 text-xs text-gray-500">
+                                    {'Formato: [{"data": "DD/MM", "desc": "Descrição"}, ...]'}
+                                </p>
+                            </div>
+                            
+                            <div className="flex items-center space-x-4">
+                                <button
+                                    type="submit"
+                                    disabled={isSaving}
+                                    className="py-2 px-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-800 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-800 disabled:bg-gray-400"
+                                >
+                                    {isSaving ? 'Salvando...' : 'Salvar Atividades'}
+                                </button>
+                                {message && <p className="text-sm text-green-600">{message}</p>}
+                            </div>
+                        </form>
+                    )}
+                </div>
+            );
+        }
+
+        // ===========================================
+        // 8. COMPONENTE UTILITÁRIO: Loader
+        // ===========================================
+        function Loader({ message }) {
+            return (
+                <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
+                    <div className="loader w-12 h-12 rounded-full border-4 border-gray-200"></div>
+                    <p className="mt-4 text-lg text-gray-600">{message || "Carregando..."}</p>
+                </div>
+            );
+        }
+
+        // ===========================================
+        // 9. RENDERIZA A APLICAÇÃO
+        // ===========================================
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+    </script>
+    <!-- FIM DA APLICAÇÃO REACT -->
+
+</body>
+</html>
