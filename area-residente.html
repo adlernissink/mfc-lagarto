@@ -31,13 +31,16 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
     <!-- Firebase SDKs -->
     <script type="module">
         // SDKs do Firebase v10+
-        // Sinta-se à vontade para usar versões mais recentes
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { 
+            getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, query, where, 
+            addDoc, deleteDoc, onSnapshot 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
         // Exponha as funções do Firebase para o script Babel
         window.firebase = {
@@ -54,12 +57,14 @@
             collection,
             getDocs,
             query,
-            where
+            where,
+            addDoc,
+            deleteDoc,
+            onSnapshot // Adicionamos onSnapshot para real-time updates
         };
     </script>
     <style>
         [x-cloak] { display: none !important; }
-        /* Estilos para o loader */
         .loader {
             border-top-color: #2D6FAD;
             animation: spin 1s linear infinite;
@@ -138,13 +143,13 @@
         // Importa funções do Firebase (expostas na window)
         const {
             initializeApp, getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut,
-            getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, query, where
+            getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, query, where,
+            addDoc, deleteDoc, onSnapshot
         } = window.firebase;
 
         // ===========================================
         // 1. CONFIGURAÇÃO DO FIREBASE
         // ===========================================
-
         const firebaseConfig = {
           apiKey: "AIzaSyCm7rxloAIEBeh3_M8Cr8AptRyzPtlsCdc",
           authDomain: "prmfc-lagarto-site.firebaseapp.com",
@@ -154,7 +159,7 @@
           appId: "1:370143866875:web:dbc0e91916675ede12255e",
           measurementId: "G-YQNS20DJFS"
         };
-
+        
         // Inicializa o Firebase
         let firebase_app;
         let firestore_db;
@@ -184,43 +189,44 @@
 
         // ===========================================
         // 3. COMPONENTE: AuthGate (Portão de Autenticação)
-        // Controla se mostra Login ou Dashboard
         // ===========================================
         function AuthGate() {
-            const [user, setUser] = useState(null); // Info do Auth (login)
-            const [userData, setUserData] = useState(null); // Info do Firestore (role, nome)
+            const [user, setUser] = useState(null); 
+            const [userData, setUserData] = useState(null); 
             const [isLoading, setIsLoading] = useState(true);
 
             useEffect(() => {
-                // Ouve mudanças no estado de login
                 const unsubscribe = onAuthStateChanged(firebase_auth, async (currentUser) => {
                     if (currentUser) {
-                        // Usuário está logado
                         setUser(currentUser);
                         try {
-                            // Busca os dados adicionais (role, nome) no Firestore
                             const userDocRef = doc(firestore_db, "users", currentUser.uid);
-                            const userDocSnap = await getDoc(userDocRef);
-                            
-                            if (userDocSnap.exists()) {
-                                setUserData(userDocSnap.data());
-                            } else {
-                                console.error("Documento do usuário não encontrado no Firestore!");
-                                // Desloga se não houver dados
-                                await signOut(firebase_auth); 
-                            }
+                            // MUDANÇA: Usamos onSnapshot para ouvir mudanças no
+                            // documento do usuário em tempo real (ex: lotação)
+                            const unsubDoc = onSnapshot(userDocRef, (userDocSnap) => {
+                                if (userDocSnap.exists()) {
+                                    setUserData(userDocSnap.data());
+                                } else {
+                                    console.error("Documento do usuário não encontrado!");
+                                    signOut(firebase_auth);
+                                }
+                                setIsLoading(false);
+                            });
+                            // Retorna o listener do documento para limpar
+                            return () => unsubDoc();
+
                         } catch (error) {
                             console.error("Erro ao buscar dados do usuário:", error);
+                            setIsLoading(false);
                         }
                     } else {
-                        // Usuário está deslogado
                         setUser(null);
                         setUserData(null);
+                        setIsLoading(false);
                     }
-                    setIsLoading(false);
                 });
 
-                // Limpa o listener ao desmontar
+                // Limpa o listener de autenticação
                 return () => unsubscribe();
             }, []);
 
@@ -229,16 +235,15 @@
             }
 
             if (user && userData) {
-                // Logado e com dados: mostra o painel
                 return <Dashboard user={user} userData={userData} />;
             }
 
-            // Deslogado: mostra a tela de login
             return <LoginScreen />;
         }
 
         // ===========================================
         // 4. COMPONENTE: LoginScreen
+        // (Sem mudanças, igual ao anterior)
         // ===========================================
         function LoginScreen() {
             const [email, setEmail] = useState('');
@@ -252,7 +257,6 @@
                 setError('');
                 try {
                     await signInWithEmailAndPassword(firebase_auth, email, password);
-                    // O onAuthStateChanged no AuthGate vai cuidar do resto
                 } catch (error) {
                     console.error("Erro no login:", error.code);
                     if (error.code === 'auth/invalid-credential') {
@@ -315,7 +319,6 @@
 
         // ===========================================
         // 5. COMPONENTE: Dashboard
-        // Decide qual painel (Residente ou Coord) mostrar
         // ===========================================
         function Dashboard({ user, userData }) {
             const handleLogout = async () => {
@@ -331,7 +334,10 @@
                     <header className="flex justify-between items-center mb-8">
                         <div>
                             <h1 className="text-2xl font-bold text-blue-950">Bem-vindo(a), {userData.nome}</h1>
-                            <p className="text-gray-600">Painel de {userData.role === 'coord' ? 'Coordenação' : 'Residente'}</p>
+                            {/* MUDANÇA: Passamos o userData para o painel de residente */}
+                            <p className="text-gray-600">
+                                {userData.role === 'coord' ? 'Painel de Coordenação' : 'Painel do Residente'}
+                            </p>
                         </div>
                         <button
                             onClick={handleLogout}
@@ -345,7 +351,8 @@
                         {userData.role === 'coord' ? (
                             <CoordDashboard />
                         ) : (
-                            <ResidenteDashboard userId={user.uid} />
+                            // MUDANÇA: Passamos o objeto `userData` inteiro
+                            <ResidenteDashboard user={user} userData={userData} />
                         )}
                     </main>
                 </div>
@@ -354,56 +361,105 @@
 
         // ===========================================
         // 6. COMPONENTE: ResidenteDashboard
+        // (Grandes mudanças aqui!)
         // ===========================================
-        function ResidenteDashboard({ userId }) {
-            const [atividades, setAtividades] = useState(null);
+        function ResidenteDashboard({ user, userData }) {
+            const [agenda, setAgenda] = useState([]);
             const [isLoading, setIsLoading] = useState(true);
 
+            // Função para formatar data YYYY-MM-DD para DD/MM/YYYY
+            const formatarData = (isoDate) => {
+                const [ano, mes, dia] = isoDate.split('-');
+                return `${dia}/${mes}/${ano}`;
+            };
+            
+            // Função para pegar data de hoje em YYYY-MM-DD
+            const getHoje = () => {
+                 return new Date().toISOString().split('T')[0];
+            };
+
             useEffect(() => {
-                const fetchAtividades = async () => {
-                    try {
-                        const atividadesDocRef = doc(firestore_db, "atividades", userId);
-                        const docSnap = await getDoc(atividadesDocRef);
-                        if (docSnap.exists()) {
-                            setAtividades(docSnap.data());
-                        } else {
-                            // Cria um doc de atividades vazio se não existir
-                            await setDoc(atividadesDocRef, { atual: "Aguardando definição", futuras: [] });
-                            setAtividades({ atual: "Aguardando definição", futuras: [] });
-                        }
-                    } catch (error) {
-                        console.error("Erro ao buscar atividades:", error);
-                    }
+                setIsLoading(true);
+                // MUDANÇA: Consultamos a nova coleção 'agendas'
+                const q = query(
+                    collection(firestore_db, "agendas"), 
+                    where("userId", "==", user.uid)
+                );
+                
+                // Usamos onSnapshot para ouvir em tempo real
+                const unsubscribe = onSnapshot(q, (querySnapshot) => {
+                    const agendaDoUsuario = [];
+                    querySnapshot.forEach((doc) => {
+                        agendaDoUsuario.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    // Ordena por data de início
+                    agendaDoUsuario.sort((a, b) => new Date(a.dataInicio) - new Date(b.dataInicio));
+                    
+                    setAgenda(agendaDoUsuario);
                     setIsLoading(false);
-                };
-                fetchAtividades();
-            }, [userId]);
+                }, (error) => {
+                    console.error("Erro ao buscar agenda: ", error);
+                    setIsLoading(false);
+                });
+
+                return () => unsubscribe(); // Limpa o listener
+            }, [user.uid]);
 
             if (isLoading) {
-                return <Loader message="Carregando atividades..." />;
+                return <Loader message="Carregando agenda..." />;
             }
+            
+            // MUDANÇA: Lógica de automação de atividades
+            const hoje = getHoje();
+            const atividadesAtuais = agenda.filter(item => 
+                item.dataInicio <= hoje && item.dataFim >= hoje
+            );
+            const atividadesFuturas = agenda.filter(item => 
+                item.dataInicio > hoje
+            );
+            // Atividades passadas são simplesmente ignoradas (não são filtradas)
 
             return (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Coluna de Atividades */}
                     <div className="bg-white p-8 rounded-lg shadow-lg">
-                        <h3 className="text-xl font-semibold text-blue-950 mb-6">Minhas Atividades</h3>
-                        
+                        {/* MUDANÇA: Exibe a lotação */}
+                        <p className="text-lg font-semibold text-blue-800 -mt-2 mb-6">
+                            Lotação: {userData.lotacaoESF || "Não definida"}
+                        </p>
+
                         <div>
-                            <h4 className="font-semibold text-gray-800">Atividade Atual</h4>
-                            <p className="mt-2 text-gray-600 bg-blue-50 p-4 rounded-md">
-                                {atividades?.atual || "Nenhuma atividade definida."}
-                            </p>
+                            <h4 className="font-semibold text-gray-800 text-xl">Atividade(s) Atual(is)</h4>
+                            {atividadesAtuais.length > 0 ? (
+                                <ul className="mt-3 space-y-3">
+                                    {atividadesAtuais.map(item => (
+                                        <li key={item.id} className="p-4 bg-blue-50 rounded-md shadow-sm">
+                                            <p className="font-semibold text-blue-900">{item.nome}</p>
+                                            <p className="text-sm text-gray-600">
+                                                Até: {formatarData(item.dataFim)}
+                                            </p>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="mt-2 text-gray-500 bg-gray-50 p-4 rounded-md">
+                                    Nenhuma atividade para hoje.
+                                </p>
+                            )}
                         </div>
                         
-                        <div className="mt-6">
-                            <h4 className="font-semibold text-gray-800">Atividades Futuras</h4>
-                            {atividades?.futuras.length > 0 ? (
+                        <div className="mt-8">
+                            <h4 className="font-semibold text-gray-800 text-xl">Atividades Futuras</h4>
+                            {atividadesFuturas.length > 0 ? (
                                 <ul className="mt-3 space-y-3">
-                                    {atividades.futuras.map((item, index) => (
-                                        <li key={index} className="p-3 bg-gray-100 rounded-md">
-                                            <span className="font-medium text-blue-800">{item.data}</span>
-                                            <p className="text-sm text-gray-700">{item.desc}</p>
+                                    {atividadesFuturas.slice(0, 5).map(item => ( // Mostra só as próximas 5
+                                        <li key={item.id} className="p-3 bg-gray-100 rounded-md">
+                                            <span className="font-medium text-blue-800">
+                                                {formatarData(item.dataInicio)}
+                                                {item.dataFim !== item.dataInicio && ` a ${formatarData(item.dataFim)}`}
+                                            </span>
+                                            <p className="text-sm text-gray-700">{item.nome}</p>
                                         </li>
                                     ))}
                                 </ul>
@@ -416,11 +472,10 @@
                     {/* Coluna de Materiais */}
                     <div className="bg-white p-8 rounded-lg shadow-lg">
                         <h3 className="text-xl font-semibold text-blue-950 mb-6">Materiais para Download</h3>
-                        <p className="text-sm text-gray-600 mb-4">Links rápidos para protocolos, portfólio e guias (requerem Firebase Storage configurado).</p>
+                        <p className="text-sm text-gray-600 mb-4">(Esta seção ainda é um placeholder. Requer o Firebase Storage.)</p>
                         <ul className="space-y-3">
                             <li><a href="#" className="text-blue-800 hover:underline">Modelo de Portfólio.docx</a></li>
                             <li><a href="#" className="text-blue-800 hover:underline">Protocolo de Saúde da Mulher.pdf</a></li>
-                            <li><a href="#" className="text-blue-800 hover:underline">Guia Rápido: Infiltração.pdf</a></li>
                         </ul>
                     </div>
                 </div>
@@ -429,107 +484,195 @@
 
         // ===========================================
         // 7. COMPONENTE: CoordDashboard
+        // (Grandes mudanças aqui!)
         // ===========================================
+        
+        // MUDANÇA: Lista de atividades predefinidas
+        const atividadesDisponiveis = [
+            { nome: "Estágio na eSF (Lotação)", tipo: "estagio" },
+            { nome: "Estágio: Urgência e Emergência (Colônia Treze)", tipo: "estagio" },
+            { nome: "Estágio: Ambulatório de Psiquiatria (UFS)", tipo: "estagio" },
+            { nome: "Estágio: Pronto-Socorro de Pediatria (HUL)", tipo: "estagio" },
+            { nome: "Estágio: Ambulatório de Saúde Trans (UFS)", tipo: "estagio" },
+            { nome: "Estágio: Pré-Natal de Alto Risco (UFS)", tipo: "estagio" },
+            { nome: "Estágio: Pequenos Procedimentos (HUL)", tipo: "estagio" },
+            { nome: "Apresentação: Encontro Quinzenal", tipo: "pontual" },
+            { nome: "Participação: Webinar SBMFC", tipo: "pontual" },
+            { nome: "Entrega: Portfólio Mensal", tipo: "pontual" },
+            { nome: "Férias", tipo: "estagio" },
+            { nome: "Outro (Descrever)", tipo: "pontual" },
+        ];
+
+
         function CoordDashboard() {
-            const [residentes, setResidentes] = useState([]); // Lista de todos os residentes
-            const [selectedId, setSelectedId] = useState(''); // UID do residente selecionado
-            const [currentAtividades, setCurrentAtividades] = useState({ atual: '', futuras: [] });
-            const [isLoading, setIsLoading] = useState(true);
-            const [isSaving, setIsSaving] = useState(false);
+            const [residentes, setResidentes] = useState([]);
+            const [selectedResidente, setSelectedResidente] = useState(null); // Guarda o obj {uid, nome, lotacaoESF}
+            const [agendaSelecionada, setAgendaSelecionada] = useState([]);
+            
+            const [isLoadingResidentes, setIsLoadingResidentes] = useState(true);
+            const [isLoadingAgenda, setIsLoadingAgenda] = useState(false);
+            
+            // Estados do formulário
+            const [novaLotacao, setNovaLotacao] = useState('');
+            const [isSavingLotacao, setIsSavingLotacao] = useState(false);
+            
+            // Estados do formulário da agenda
+            const [atividadeAgendada, setAtividadeAgendada] = useState(atividadesDisponiveis[0].nome);
+            const [dataInicio, setDataInicio] = useState(new Date().toISOString().split('T')[0]);
+            const [dataFim, setDataFim] = useState(new Date().toISOString().split('T')[0]);
+            const [isSavingAgenda, setIsSavingAgenda] = useState(false);
+
             const [message, setMessage] = useState('');
 
             // 1. Busca todos os residentes na inicialização
             useEffect(() => {
-                const fetchResidentes = async () => {
-                    try {
-                        const q = query(collection(firestore_db, "users"), where("role", "==", "residente"));
-                        const querySnapshot = await getDocs(q);
-                        const residentesList = querySnapshot.docs.map(doc => ({
-                            uid: doc.id,
-                            ...doc.data()
-                        }));
-                        setResidentes(residentesList);
-                    } catch (error) {
-                        console.error("Erro ao buscar residentes:", error);
-                    }
-                    setIsLoading(false);
-                };
-                fetchResidentes();
+                const q = query(collection(firestore_db, "users"), where("role", "==", "residente"));
+                const unsubscribe = onSnapshot(q, (querySnapshot) => {
+                    const residentesList = querySnapshot.docs.map(doc => ({
+                        uid: doc.id,
+                        ...doc.data()
+                    }));
+                    setResidentes(residentesList);
+                    setIsLoadingResidentes(false);
+                }, (error) => {
+                    console.error("Erro ao buscar residentes:", error);
+                    setIsLoadingResidentes(false);
+                });
+                return () => unsubscribe();
             }, []);
 
-            // 2. Busca atividades quando um residente é selecionado
-            const fetchAtividadesDoResidente = async (uid) => {
-                if (!uid) {
-                    setCurrentAtividades({ atual: '', futuras: [] });
+            // 2. Busca agenda quando um residente é selecionado
+            useEffect(() => {
+                if (!selectedResidente?.uid) {
+                    setAgendaSelecionada([]);
                     return;
                 }
-                try {
-                    const atividadesDocRef = doc(firestore_db, "atividades", uid);
-                    const docSnap = await getDoc(atividadesDocRef);
-                    if (docSnap.exists()) {
-                        setCurrentAtividades(docSnap.data());
-                    } else {
-                        setCurrentAtividades({ atual: '', futuras: [] });
-                    }
-                } catch (error) {
-                    console.error("Erro ao buscar atividades:", error);
-                }
-            };
+                
+                setIsLoadingAgenda(true);
+                const q = query(
+                    collection(firestore_db, "agendas"), 
+                    where("userId", "==", selectedResidente.uid)
+                );
+                
+                const unsubscribe = onSnapshot(q, (querySnapshot) => {
+                    let agenda = [];
+                    querySnapshot.forEach(doc => agenda.push({ id: doc.id, ...doc.data() }));
+                    // Ordena por data de início
+                    agenda.sort((a, b) => new Date(a.dataInicio) - new Date(b.dataInicio));
+                    setAgendaSelecionada(agenda);
+                    setIsLoadingAgenda(false);
+                }, (error) => {
+                    console.error("Erro ao buscar agenda selecionada:", error);
+                    setIsLoadingAgenda(false);
+                });
+
+                return () => unsubscribe();
+            }, [selectedResidente]);
 
             const handleSelectChange = (e) => {
                 const uid = e.target.value;
-                setSelectedId(uid);
-                fetchAtividadesDoResidente(uid);
+                if (uid) {
+                    const res = residentes.find(r => r.uid === uid);
+                    setSelectedResidente(res);
+                    setNovaLotacao(res.lotacaoESF || '');
+                } else {
+                    setSelectedResidente(null);
+                    setNovaLotacao('');
+                }
+            };
+            
+            const showMessage = (msg) => {
+                setMessage(msg);
+                setTimeout(() => setMessage(''), 3000);
             };
 
-            // 3. Salva as atividades
-            const handleSave = async (e) => {
+            // 3. Salvar Lotação
+            const handleSaveLotacao = async (e) => {
                 e.preventDefault();
-                if (!selectedId) {
-                    setMessage("Por favor, selecione um residente.");
+                if (!selectedResidente) return;
+                
+                setIsSavingLotacao(true);
+                try {
+                    const userDocRef = doc(firestore_db, "users", selectedResidente.uid);
+                    await updateDoc(userDocRef, {
+                        lotacaoESF: novaLotacao
+                    });
+                    showMessage("Lotação salva com sucesso!");
+                } catch (error) {
+                    console.error("Erro ao salvar lotação:", error);
+                    showMessage("Erro ao salvar lotação.");
+                }
+                setIsSavingLotacao(false);
+            };
+
+            // 4. Agendar Nova Atividade
+            const handleAgendar = async (e) => {
+                e.preventDefault();
+                if (!selectedResidente) return;
+
+                // Validação de datas
+                if (dataFim < dataInicio) {
+                    showMessage("A data final não pode ser anterior à data inicial.");
                     return;
                 }
-                setIsSaving(true);
-                setMessage('');
+                
+                setIsSavingAgenda(true);
                 try {
-                    const atividadesDocRef = doc(firestore_db, "atividades", selectedId);
-                    // Usamos `setDoc` com `merge: true` para criar ou atualizar
-                    await setDoc(atividadesDocRef, currentAtividades, { merge: true });
-                    setMessage('Atividades salvas com sucesso!');
+                    const tipoAtividade = atividadesDisponiveis.find(a => a.nome === atividadeAgendada)?.tipo || 'pontual';
+                    
+                    await addDoc(collection(firestore_db, "agendas"), {
+                        userId: selectedResidente.uid,
+                        nome: atividadeAgendada,
+                        tipo: tipoAtividade,
+                        dataInicio: dataInicio,
+                        dataFim: tipoAtividade === 'pontual' ? dataInicio : dataFim, // Se for pontual, data fim = data início
+                    });
+                    
+                    showMessage("Atividade agendada com sucesso!");
+                    // Resetar campos
+                    setDataInicio(new Date().toISOString().split('T')[0]);
+                    setDataFim(new Date().toISOString().split('T')[0]);
+
                 } catch (error) {
-                    console.error("Erro ao salvar atividades:", error);
-                    setMessage('Erro ao salvar.');
+                    console.error("Erro ao agendar:", error);
+                    showMessage("Erro ao agendar atividade.");
                 }
-                setIsSaving(false);
-                setTimeout(() => setMessage(''), 3000); // Limpa a mensagem
+                setIsSavingAgenda(false);
             };
 
-            // Lidar com a mudança no JSON das atividades futuras
-            const handleFuturasChange = (e) => {
+            // 5. Deletar Atividade
+            const handleDeleteAtividade = async (id) => {
+                if (!window.confirm("Tem certeza que deseja remover esta atividade?")) return;
+                
                 try {
-                    const parsedFuturas = JSON.parse(e.target.value);
-                    if (Array.isArray(parsedFuturas)) {
-                        setCurrentAtividades(prev => ({ ...prev, futuras: parsedFuturas }));
-                    }
+                    await deleteDoc(doc(firestore_db, "agendas", id));
+                    showMessage("Atividade removida.");
                 } catch (error) {
-                    // Se o JSON for inválido, não faz nada (poderia mostrar um erro)
-                    console.warn("JSON inválido para atividades futuras");
+                    console.error("Erro ao remover:", error);
+                    showMessage("Erro ao remover atividade.");
                 }
             };
 
-            if (isLoading) {
+            if (isLoadingResidentes) {
                 return <Loader message="Carregando lista de residentes..." />;
             }
+            
+            // Função para formatar data YYYY-MM-DD para DD/MM
+            const formatarDataCurta = (isoDate) => {
+                const [ano, mes, dia] = isoDate.split('-');
+                return `${dia}/${mes}`;
+            };
+            const hoje = new Date().toISOString().split('T')[0];
 
             return (
                 <div className="bg-white p-8 rounded-lg shadow-lg">
                     <h3 className="text-xl font-semibold text-blue-950 mb-6">Painel de Coordenação</h3>
                     
+                    {/* Seletor de Residente */}
                     <div className="mb-6">
                         <label htmlFor="residente-select" className="block text-sm font-medium text-gray-700">Selecione o Residente</label>
                         <select
                             id="residente-select"
-                            value={selectedId}
                             onChange={handleSelectChange}
                             className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-800 focus:border-blue-800 sm:text-sm rounded-md"
                         >
@@ -540,48 +683,111 @@
                         </select>
                     </div>
 
-                    {selectedId && (
-                        <form onSubmit={handleSave} className="space-y-6">
-                            <div>
-                                <label htmlFor="atividade-atual" className="block text-sm font-medium text-gray-700">Atividade Atual</label>
-                                <input
-                                    type="text"
-                                    id="atividade-atual"
-                                    value={currentAtividades.atual}
-                                    onChange={(e) => setCurrentAtividades(prev => ({ ...prev, atual: e.target.value }))}
-                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="atividades-futuras" className="block text-sm font-medium text-gray-700">Atividades Futuras (em formato JSON)</label>
-                                <textarea
-                                    id="atividades-futuras"
-                                    rows="6"
-                                    defaultValue={JSON.stringify(currentAtividades.futuras, null, 2)}
-                                    onBlur={handleFuturasChange} // Atualiza quando o usuário sai do campo
-                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800 font-mono text-sm"
-                                />
-                                {/* ATUALIZAÇÃO 2: Erro de sintaxe do Babel corrigido.
-                                  O texto com caracteres especiais (como `{}`) foi 
-                                  envolvido por chaves `{ '...' }` para ser 
-                                  interpretado como uma string JS, e não como código JSX.
-                                */}
-                                <p className="mt-2 text-xs text-gray-500">
-                                    {'Formato: [{"data": "DD/MM", "desc": "Descrição"}, ...]'}
-                                </p>
-                            </div>
+                    {/* Formulários e Listas (só aparecem se um residente for selecionado) */}
+                    {selectedResidente && (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                             
-                            <div className="flex items-center space-x-4">
-                                <button
-                                    type="submit"
-                                    disabled={isSaving}
-                                    className="py-2 px-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-800 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-800 disabled:bg-gray-400"
-                                >
-                                    {isSaving ? 'Salvando...' : 'Salvar Atividades'}
-                                </button>
-                                {message && <p className="text-sm text-green-600">{message}</p>}
+                            {/* Coluna Esquerda: Gerenciamento */}
+                            <div className="space-y-8">
+                                
+                                {/* Gerenciar Lotação */}
+                                <form onSubmit={handleSaveLotacao} className="space-y-3">
+                                    <h4 className="text-lg font-semibold text-gray-800">Gerenciar Lotação</h4>
+                                    <div>
+                                        <label htmlFor="lotacao" className="block text-sm font-medium text-gray-700">Lotação na eSF</label>
+                                        <input
+                                            type="text"
+                                            id="lotacao"
+                                            value={novaLotacao}
+                                            onChange={(e) => setNovaLotacao(e.target.value)}
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
+                                        />
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        disabled={isSavingLotacao}
+                                        className="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-800 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-800 disabled:bg-gray-400"
+                                    >
+                                        {isSavingLotacao ? 'Salvando...' : 'Salvar Lotação'}
+                                    </button>
+                                </form>
+
+                                {/* Agendar Atividade */}
+                                <form onSubmit={handleAgendar} className="space-y-3">
+                                    <h4 className="text-lg font-semibold text-gray-800">Agendar Atividade</h4>
+                                    <div>
+                                        <label htmlFor="atividade-select" className="block text-sm font-medium text-gray-700">Atividade</label>
+                                        <select
+                                            id="atividade-select"
+                                            value={atividadeAgendada}
+                                            onChange={(e) => setAtividadeAgendada(e.target.value)}
+                                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-800 focus:border-blue-800 sm:text-sm rounded-md"
+                                        >
+                                            {atividadesDisponiveis.map(at => (
+                                                <option key={at.nome} value={at.nome}>{at.nome}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label htmlFor="data-inicio" className="block text-sm font-medium text-gray-700">Data Início</label>
+                                            <input type="date" id="data-inicio" value={dataInicio} onChange={e => setDataInicio(e.target.value)}
+                                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800" />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="data-fim" className="block text-sm font-medium text-gray-700">Data Fim</label>
+                                            <input type="date" id="data-fim" value={dataFim} onChange={e => setDataFim(e.target.value)}
+                                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800" />
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        disabled={isSavingAgenda}
+                                        className="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-700 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600 disabled:bg-gray-400"
+                                    >
+                                        {isSavingAgenda ? 'Agendando...' : 'Agendar'}
+                                    </button>
+                                </form>
+
                             </div>
-                        </form>
+
+                            {/* Coluna Direita: Agenda Atual */}
+                            <div>
+                                <h4 className="text-lg font-semibold text-gray-800 mb-3">Agenda de {selectedResidente.nome}</h4>
+                                {message && <p className="text-sm text-green-600 mb-3">{message}</p>}
+                                
+                                {isLoadingAgenda ? (
+                                    <p>Carregando agenda...</p>
+                                ) : (
+                                    <ul className="space-y-2 h-96 overflow-y-auto pr-2">
+                                        {agendaSelecionada.length === 0 && <p className="text-gray-500">Nenhuma atividade agendada.</p>}
+                                        
+                                        {agendaSelecionada.map(item => (
+                                            <li 
+                                                key={item.id} 
+                                                className={`flex items-center justify-between p-3 rounded-md 
+                                                    ${item.dataFim < hoje ? 'bg-gray-100 opacity-60' : ''} 
+                                                    ${item.dataInicio <= hoje && item.dataFim >= hoje ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'}`}
+                                            >
+                                                <div>
+                                                    <p className="font-medium text-gray-800 text-sm">{item.nome}</p>
+                                                    <p className="text-xs text-blue-800">
+                                                        {formatarDataCurta(item.dataInicio)}
+                                                        {item.dataFim !== item.dataInicio && ` a ${formatarDataCurta(item.dataFim)}`}
+                                                    </p>
+                                                </div>
+                                                <button 
+                                                    onClick={() => handleDeleteAtividade(item.id)}
+                                                    className="text-red-500 hover:text-red-700 text-sm font-medium"
+                                                >
+                                                    Remover
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
+                        </div>
                     )}
                 </div>
             );
